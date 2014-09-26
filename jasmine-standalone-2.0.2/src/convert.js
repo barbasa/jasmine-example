@@ -32,7 +32,7 @@ var CONVERTER = CONVERTER || (function() {
                 throw new Error("unrecognized to-unit");
             }
             var converted_value = _rates[from][to] * value;
-            converted_value =converted_value.toFixed(2);
+            converted_value = parseFloat( converted_value.toFixed(2) );
             return converted_value;
         }
     };
