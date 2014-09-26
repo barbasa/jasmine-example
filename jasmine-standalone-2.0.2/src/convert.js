@@ -34,7 +34,10 @@ var CONVERTER = CONVERTER || (function() {
             var converted_value = _rates[from][to] * value;
             converted_value = parseFloat( converted_value.toFixed(2) );
             return converted_value;
-        }
+        },
+        canConvert : function (unit) {
+            return (typeof _rates[unit] === 'undefined') ? false : true;
+        },
     };
 
 }());

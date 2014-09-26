@@ -40,4 +40,17 @@ describe( "Convert library", function () {
         expect(testFn).toThrow(new Error("unrecognized to-unit"));
     });
 
+
+    describe( "can convert ", function () {
+        it("cm is true", function () {
+            expect(CONVERTER.canConvert('cm')).toBeTruthy();
+        });
+
+        it("inexistent unit is false", function () {
+            expect(CONVERTER.canConvert('I_dont_exists')).toBeFalsy();
+        });
+
+    });
+
+
 });
