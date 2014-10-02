@@ -38,6 +38,13 @@ var CONVERTER = CONVERTER || (function() {
         canConvert : function (unit) {
             return (typeof _rates[unit] === 'undefined') ? false : true;
         },
+        convertRemote : function (args) {
+            var from = args.from;
+            var to   = args.to;
+            var value= args.value;
+            $.ajax({url:"test.txt",success:function(result) {} });
+
+        },
     };
 
 }());

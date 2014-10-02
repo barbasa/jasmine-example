@@ -13,14 +13,14 @@ describe( "Convert library", function () {
         });
 
     });
- 
+
     describe( "volume converter", function () {
 
         it("converts litres to gallons", function () {
             var args = {'from' : 'litres', 'to' : 'gallons', 'value' : 3};
             expect(CONVERTER.convert(args)).toEqual(0.66);
         });
- 
+
     });
 
 
@@ -50,6 +50,43 @@ describe( "Convert library", function () {
             expect(CONVERTER.canConvert('I_dont_exists')).toBeFalsy();
         });
 
+    });
+
+    describe("mocking ajax", function() {
+        it("allows use in a single spec", function() {
+
+            // Create a spy function to check if success has been hit!
+            var doneFn    = jasmine.createSpy('onSuccess');
+            var notDoneFn = jasmine.createSpy('onFailure');
+
+            jasmine.Ajax.withMock(function() {
+                  var xhr = new XMLHttpRequest();
+
+                  xhr.onreadystatechange = function(args) {
+                    if (this.readyState == this.DONE) {
+                      doneFn(this.responseText);
+                    }
+                    else {
+                      notDoneFn(this.responseText);
+                    }
+                  };
+
+                  xhr.open("GET", "/some/cool/url");
+                  xhr.send();
+
+                  expect(doneFn).not.toHaveBeenCalled();
+                  expect(notDoneFn).toHaveBeenCalled();
+
+                   // Set the mocked responmse to be a 200...hence hit success!
+                  jasmine.Ajax.requests.mostRecent().response({
+                    "status": 200,
+                    "responseText": 'succesfull response'
+                  });
+
+                  expect(doneFn).toHaveBeenCalledWith('succesfull response');
+
+            });
+      });
     });
 
 
