@@ -86,7 +86,70 @@ describe( "Convert library", function () {
                   expect(doneFn).toHaveBeenCalledWith('succesfull response');
 
             });
-      });
+        });
+
+        describe("allows use in multiple specs", function() {
+
+            // Make sure we mock/unmock the requests
+            beforeEach(function() {
+                jasmine.Ajax.install();
+            });
+
+            afterEach(function() {
+                jasmine.Ajax.uninstall();
+            });
+
+
+            it("specifying response when you need it", function() {
+                var doneFn = jasmine.createSpy("success");
+
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function(args) {
+                    if (this.readyState == this.DONE) {
+                        doneFn(this.responseText, this.status);
+                    }
+                };
+
+                xhr.open("GET", "/some/cool/url");
+                xhr.send();
+
+                expect(jasmine.Ajax.requests.mostRecent().url).toBe('/some/cool/url');
+                expect(doneFn).not.toHaveBeenCalled();
+
+                jasmine.Ajax.requests.mostRecent().response({
+                    "status": 200,
+                    "contentType": 'text/plain',
+                    "responseText": 'awesome response'
+                });
+
+                // Any parameter passed to doneFn can be tested!
+                expect(doneFn).toHaveBeenCalledWith('awesome response', 200);
+
+
+            });
+
+            it("allowing responses to be setup ahead of time", function () {
+                var doneFn = jasmine.createSpy("success");
+
+                jasmine.Ajax.stubRequest('/another/url').andReturn({
+                     "responseText": 'stubbed url response'
+                });
+
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function(args) {
+                    if (this.readyState == this.DONE) {
+                        doneFn(this.responseText);
+                    }
+                };
+
+                xhr.open("GET", "/another/url");
+                xhr.send();
+
+                expect(doneFn).toHaveBeenCalledWith('stubbed url response');
+
+            });
+
+        });
     });
 
 
