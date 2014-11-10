@@ -52,43 +52,8 @@ describe( "Convert library", function () {
 
     });
 
-    describe("mocking ajax", function() {
-        it("allows use in a single spec", function() {
 
-            // Create a spy function to check if success has been hit!
-            var doneFn    = jasmine.createSpy('onSuccess');
-            var notDoneFn = jasmine.createSpy('onFailure');
-
-            jasmine.Ajax.withMock(function() {
-                  var xhr = new XMLHttpRequest();
-
-                  xhr.onreadystatechange = function(args) {
-                    if (this.readyState == this.DONE) {
-                      doneFn(this.responseText);
-                    }
-                    else {
-                      notDoneFn(this.responseText);
-                    }
-                  };
-
-                  xhr.open("GET", "/some/cool/url");
-                  xhr.send();
-
-                  expect(doneFn).not.toHaveBeenCalled();
-                  expect(notDoneFn).toHaveBeenCalled();
-
-                   // Set the mocked responmse to be a 200...hence hit success!
-                  jasmine.Ajax.requests.mostRecent().response({
-                    "status": 200,
-                    "responseText": 'succesfull response'
-                  });
-
-                  expect(doneFn).toHaveBeenCalledWith('succesfull response');
-
-            });
-        });
-
-        describe("allows use in multiple specs", function() {
+    describe("on success Ajax call", function() {
 
             // Make sure we mock/unmock the requests
             beforeEach(function() {
@@ -99,22 +64,16 @@ describe( "Convert library", function () {
                 jasmine.Ajax.uninstall();
             });
 
-
-            it("specifying response when you need it", function() {
+            it("hits the success function", function() {
                 var doneFn = jasmine.createSpy("success");
+                var notDoneFn = jasmine.createSpy('onFailure');
 
                 var xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function(args) {
-                    if (this.readyState == this.DONE) {
-                        doneFn(this.responseText, this.status);
-                    }
+                    this.readyState == this.DONE
+                        ? doneFn(this.responseText, this.status)
+                        : notDoneFn(this.responseText, this.status);
                 };
-
-                xhr.open("GET", "/some/cool/url");
-                xhr.send();
-
-                expect(jasmine.Ajax.requests.mostRecent().url).toBe('/some/cool/url');
-                expect(doneFn).not.toHaveBeenCalled();
 
                 jasmine.Ajax.requests.mostRecent().response({
                     "status": 200,
@@ -122,35 +81,105 @@ describe( "Convert library", function () {
                     "responseText": 'awesome response'
                 });
 
-                // Any parameter passed to doneFn can be tested!
-                expect(doneFn).toHaveBeenCalledWith('awesome response', 200);
-
-
-            });
-
-            it("allowing responses to be setup ahead of time", function () {
-                var doneFn = jasmine.createSpy("success");
-
-                jasmine.Ajax.stubRequest('/another/url').andReturn({
-                     "responseText": 'stubbed url response'
+                CONVERTER.convertRemote({
+                        "from":  'from_test',
+                        "to":    'to_test',
+                        "value": 'value_test'
                 });
 
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function(args) {
-                    if (this.readyState == this.DONE) {
-                        doneFn(this.responseText);
-                    }
-                };
-
-                xhr.open("GET", "/another/url");
-                xhr.send();
-
-                expect(doneFn).toHaveBeenCalledWith('stubbed url response');
+                expect(jasmine.Ajax.requests.mostRecent().url).toBe('/removeConvertService');
+                expect(notDoneFn).not.toHaveBeenCalled();
+                expect(doneFn).toHaveBeenCalledWith('awesome response', 200);
 
             });
 
-        });
+         
     });
 
+/*
+
+    describe("on fail Ajax call", function() {
+
+            // Make sure we mock/unmock the requests
+            beforeEach(function() {
+                jasmine.Ajax.install();
+                spyOn(CONVERTER, 'convertRemote').andCallThrough(); 
+                spyOn(this, 'onSuccess');
+                spyOn(this, 'onFailure');
+
+            });
+
+            afterEach(function() {
+                jasmine.Ajax.uninstall();
+            });
+
+            it("hits the fail function", function() {
+             
+                jasmine.Ajax.requests.mostRecent().response({
+                    "status": 500,
+                    "contentType": 'text/plain',
+                    "responseText": ''
+                });
+
+                CONVERTER.convertRemote({
+                        "from":  'from_test',
+                        "to":    'to_test',
+                        "value": 'value_test'
+                });
+
+                expect(jasmine.Ajax.requests.mostRecent().url).toBe('/removeConvertService');
+                expect(this.onFailure).toHaveBeenCalled();
+                expect(this.onSuccess).not.toHaveBeenCalled();
+
+            });
+
+         
+    });
+
+
+    describe("Ajax other way!", function() {
+        var onSuccess, onFailure;
+
+        describe("on success", function() {
+
+            var onSuccess;
+            beforeEach(function() {
+                jasmine.Ajax.install();
+                onSuccess = jasmine.createSpy( "success");
+                onError   = jasmine.createSpy( "error");
+
+                CONVERTER.convertRemote({
+                            "from":  'from_test',
+                            "to":    'to_test',
+                            "value": 'value_test'
+                });
+
+                jasmine.Ajax.requests.mostRecent().response({
+                    "status": 500,
+                    //"contentType": 'text/plain',
+                    //"responseText": 'awesome response'
+                });
+
+
+                request = jasmine.Ajax.requests.mostRecent();
+                expect(request.url).toBe('/removeConvertService');
+
+            });
+
+
+            it("calls success", function() {
+                expect(onSuccess).toHaveBeenCalled();
+                expect(onError).not.toHaveBeenCalled();
+
+//                var successArgs = onSuccess.calls.mostRecent().args[0];
+
+ //               expect(successArgs.length).toEqual(1);
+  //              expect(successArgs[0]).toEqual(jasmine.any(Venue));
+                
+            });
+        });
+
+    });
+*/
 
 });
