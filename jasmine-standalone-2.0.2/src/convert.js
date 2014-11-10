@@ -38,11 +38,22 @@ var CONVERTER = CONVERTER || (function() {
         canConvert : function (unit) {
             return (typeof _rates[unit] === 'undefined') ? false : true;
         },
+        iDidSuccess : function(){},
+        iDidFail    : function(){},
         convertRemote : function (args) {
             var from = args.from;
             var to   = args.to;
             var value= args.value;
-            $.ajax({url:"test.txt",success:function(result) {} });
+            var self = this;
+            $.ajax({
+                 url:     "/removeConvertService",
+                 success: function(result) {
+                    self.iDidSuccess();
+                 },
+                 error: function(result) {
+                    self.iDidFail();
+                 },
+            });
 
         },
     };
