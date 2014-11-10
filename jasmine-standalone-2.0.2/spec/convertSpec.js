@@ -96,6 +96,34 @@ describe( "Convert library", function () {
          
     });
 
+
+    describe("custom matcher: 'toBeOfType'", function() {
+        beforeEach(function() {
+            jasmine.addMatchers({
+                toBeDivisibleByTwo: function () {
+                    return {
+                        compare: function (actual, expected) {
+                            return {
+                                pass: (actual % 2) === 0
+                            };
+                        }
+                    };
+                }
+            }); 
+        }); 
+
+        it("is available in an expectation", function() {
+            expect(10).toBeDivisibleByTwo();
+        });
+
+        it("can be negated", function() {
+            expect(5).not.toBeDivisibleByTwo();
+        });
+
+        // It can also take params!
+    
+    });
+
 /*
 
     describe("on fail Ajax call", function() {
